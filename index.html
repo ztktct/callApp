@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>浏览器唤起App</title>
+</head>
+
+<body>
+    <div id="txt"></div>
+    <a href="javascript:;" id="callLInk">点我唤起APP</a>
+    <script src='./callApp.js'></script>
+    <script>
+        var app = new CallApp({
+            scheme: 'jdly://ztktct/details',
+            timeout: 2000,
+            autoCall: true,
+            params: {
+                id: 31552
+            }
+        })
+        document.getElementById('callLInk').onclick = function () {
+            app.call(function (flag) {
+                if (flag) {
+                    document.getElementById('txt').innerHTML += '<br/>成功'
+                } else {
+                    document.getElementById('txt').innerHTML += '<br/>失败'
+                }
+            })
+        }
+    </script>
+</body>
+</html>
