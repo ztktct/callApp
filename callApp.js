@@ -25,10 +25,12 @@
     // 基础配置
     const BASE_CONFIG = {
         scheme: '', // 应该必填，考虑低版本IOS和安卓
+        androidScheme: null, // 安卓用Scheme，以防万一安卓与IOS定义的不一致的时候可用，:D
+        iosScheme: null, // IOS 用scheme
         params: null, // 参数，url里的查询字符串
         applink: null, //安卓
         universalLink: null, // IOS
-        // androidIntent: null, // Android Intent 方式唤起，尽量不用，改方式能用，scheme方式都能用
+        // androidIntent: null, // Android Intent 方式唤起，尽量不用，该方式能用，scheme方式都能用
         timeout: 1600, // 超时时间
         autoCall: false, // 是否自动唤起
         success: function () {},
@@ -43,13 +45,14 @@
             let scheme = ''
             if (typeof config === 'string') {
                 this._url = config
+            } else if (config.androidScheme && browser.isAndroid) {
+                this._url = config.androidScheme
+            } else if (config.iosScheme && browser.isIos) {
+                this._url = config.iosScheme
             } else {
                 this._url = config.scheme
             }
-            // 安卓不支持scheme大写，统一改为小写
-            if (browser.isAndroid) {
-                this._url = this._url.toLowerCase()
-            }
+
             // 如果采用deep link
             // 安卓针对6.0+
             // IOS针对9.0+
@@ -69,21 +72,20 @@
             }
         }
 
-        // 检测是否唤起成功
+        /**检测是否唤起成功
+         * 基于时间差来判断是否唤起成功，不太准确
+         * 假定超时时间设为1600ms，判断基准为800ms
+         * 如果没有唤起成功，停留在当前页，则当计数完毕后，时间差应该不会超过太多
+         * 相反，如果唤起成功，则浏览器进入后台工作，setInterval会被延迟执行，时间差会被拉大,
+         * 一些国产浏览器或者safari会在唤起的时候弹窗，导致此方法无效，考虑以下解决方案：
+         * 1、对于Android国产浏览器，如果因为弹窗超时，则判定为失败，自动跳转下载页，但是由于弹窗还存在，如果用户点击唤起，依然可以唤起APP
+         * 2、对于IOS,IOS7、8依旧采用scheme,IOS9+可以考虑使用universalLink！！
+         */
         _checkApp(cb) {
             const timeout = this._config.timeout;
             const totalCount = Math.ceil(timeout / 20);
             const acceptTime = timeout + 800;
 
-            /**
-             * 基于时间差来判断是否唤起成功，不太准确
-             * 假定超时时间设为1600ms，判断基准为800ms
-             * 如果没有唤起成功，停留在当前页，则当计数完毕后，时间差应该不会超过太多
-             * 相反，如果唤起成功，则浏览器进入后台工作，setInterval会被延迟执行，时间差会被拉大,
-             * 一些国产浏览器或者safari会在唤起的时候弹窗，导致此方法无效，考虑以下解决方案：
-             * 1、对于Android国产浏览器，如果因为弹窗超时，则判定为失败，自动跳转下载页，但是由于弹窗还存在，如果用户点击唤起，依然可以唤起APP
-             * 2、对于IOS,IOS7、8依旧采用scheme,IOS9+考虑使用universalLink！！
-             */
             const _callTime = +new Date(); // 开始调用时间
             let _count = 0, // 计数，20ms记一次
                 timer = null; //定时器

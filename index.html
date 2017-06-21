@@ -9,7 +9,6 @@
 </head>
 
 <body>
-    <div id="txt"></div>
     <a href="javascript:;" id="callLInk">点我唤起APP</a>
     <script src='./callApp.js'></script>
     <script>
@@ -24,9 +23,9 @@
         document.getElementById('callLInk').onclick = function () {
             app.call(function (flag) {
                 if (flag) {
-                    document.getElementById('txt').innerHTML += '<br/>成功'
+                    // 成功
                 } else {
-                    document.getElementById('txt').innerHTML += '<br/>失败'
+                    // 失败
                 }
             })
         }
