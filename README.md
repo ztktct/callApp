@@ -51,6 +51,7 @@
 1. 普通用法
 ```javascript
 var app = new CallApp('jdly://ztktct/details')
+app.call()
 ```
 2. 自定义配置
 ```javascript
